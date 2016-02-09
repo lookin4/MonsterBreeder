@@ -25,6 +25,8 @@ extern lkn::Image* status_mask_image;
 extern game::Suezo* suezo;
 extern game::Monster* monster;
 extern game::Player* player;
+extern lkn::Sound* training_music;
+
 
 extern int training_command;
 
@@ -34,6 +36,8 @@ float training_movie;
 
 bool up_init = 0;
 int up_para;
+int super_up_para;
+int down_para;
 
 lkn::RGB parameter_color[6] = {
 	1, 1, 0.5f,
@@ -46,6 +50,8 @@ lkn::RGB parameter_color[6] = {
 
 void training() {
 	if (training_init == 0) {
+		alSourcePlay(training_music->source);
+
 		training_frame = 0;
 		result = NULL;
 		l_para = NULL;
@@ -135,13 +141,13 @@ void training() {
 				}
 			}
 			else {
-				printf("12");
 				result = NULL;
 				l_para = NULL;
 				h_para = NULL;
 				up_init = 0;
 				player->nengetu++;
 				monster->age++;
+				alSourceStop(training_music->source);
 
 				func = farm;
 			}
@@ -178,6 +184,216 @@ void success() {
 }
 
 void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, unsigned short& para2, unsigned short& para3) {
+	if (up_init == 0) {
+		up_init = 1;
+
+		super_up_para = 10 + (rand() % 5 - 2);
+		up_para = 5 + (rand() % 5 - 2);
+		down_para = 3 + (rand() % 3 - 2);
+		para1 += super_up_para;
+		para2 += up_para;
+		para3 -= down_para;
+		if (para1 > 999) {
+			super_up_para -= (para1 - 999);
+			para1 = 999;
+		}
+		if (para2 > 999) {
+			up_para -= (para2 - 999);
+			para2 = 999;
+		}
+		if (para3 < 1) {
+			down_para -= (1-para3);
+			para3 = 1;
+		}
+
+	}
+
+	status_mask_image->changeImage();
+
+	glColor4f(1, 1, 1, 1);
+	glBegin(GL_QUADS);
+	{
+		glTexCoord2f(0, 0);
+		glVertex2f(70, 250);
+		glTexCoord2f(0, 1);
+		glVertex2f(70, 80);
+		glTexCoord2f(1, 1);
+		glVertex2f(230, 80);
+		glTexCoord2f(1, 0);
+		glVertex2f(230, 250);
+
+	}
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(
+		GL_SRC_ALPHA,
+		GL_ONE_MINUS_SRC_ALPHA
+		);
+
+	glColor4f(0.3f, 0.3f, 0.3f, 1);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(85, 95);
+		glVertex2f(125, 95);
+		glVertex2f(125, 125);
+		glVertex2f(85, 125);
+	}
+	{
+		glVertex2f(85, 135);
+		glVertex2f(125, 135);
+		glVertex2f(125, 165);
+		glVertex2f(85, 165);
+	}
+	{
+		glVertex2f(85, 175);
+		glVertex2f(125, 175);
+		glVertex2f(125, 205);
+		glVertex2f(85, 205);
+	}
+	glColor4f(0.3f, 0.3f, 0.3f, 0.3f);
+	{
+		glVertex2f(125, 95);
+		glVertex2f(220, 95);
+		glVertex2f(220, 125);
+		glVertex2f(125, 125);
+	}
+	{
+		glVertex2f(125, 135);
+		glVertex2f(220, 135);
+		glVertex2f(220, 165);
+		glVertex2f(125, 165);
+	}
+	{
+		glVertex2f(125, 175);
+		glVertex2f(220, 175);
+		glVertex2f(220, 205);
+		glVertex2f(125, 205);
+	}
+
+	int parameter_length1 = 126 + (219 - 126) / 999.0f*para1;
+	int parameter_length2 = 126 + (219 - 126) / 999.0f*para2;
+	int parameter_length3 = 126 + (219 - 126) / 999.0f*para3;
+	glColor4f(parameter_color[type1].r, parameter_color[type1].g, parameter_color[type1].b, 1);
+	{
+		glVertex2f(126, 182);
+		glVertex2f(parameter_length1, 182);
+		glVertex2f(parameter_length1, 198);
+		glVertex2f(126, 198);
+	}
+
+	glColor4f(parameter_color[type2].r, parameter_color[type2].g, parameter_color[type2].b, 1);
+	{
+		glVertex2f(126, 142);
+		glVertex2f(parameter_length2, 142);
+		glVertex2f(parameter_length2, 158);
+		glVertex2f(126, 158);
+	}
+
+	glColor4f(parameter_color[type3].r, parameter_color[type3].g, parameter_color[type3].b, 1);
+	{
+		glVertex2f(126, 102);
+		glVertex2f(parameter_length3, 102);
+		glVertex2f(parameter_length3, 118);
+		glVertex2f(126, 118);
+	}
+
+	glColor4f(0, 0, 0, 0.4f);
+	{
+		glVertex2f(126, 138);
+		glVertex2f(143, 138);
+		glVertex2f(143, 162);
+		glVertex2f(126, 162);
+	}
+	{
+		glVertex2f(151, 138);
+		glVertex2f(169, 138);
+		glVertex2f(169, 162);
+		glVertex2f(151, 162);
+	}
+	{
+		glVertex2f(176, 138);
+		glVertex2f(194, 138);
+		glVertex2f(194, 162);
+		glVertex2f(176, 162);
+	}
+
+	{
+		glVertex2f(126, 98);
+		glVertex2f(143, 98);
+		glVertex2f(143, 122);
+		glVertex2f(126, 122);
+	}
+	{
+		glVertex2f(151, 98);
+		glVertex2f(169, 98);
+		glVertex2f(169, 122);
+		glVertex2f(151, 122);
+	}
+	{
+		glVertex2f(176, 98);
+		glVertex2f(194, 98);
+		glVertex2f(194, 122);
+		glVertex2f(176, 122);
+	}
+
+	{
+		glVertex2f(126, 178);
+		glVertex2f(143, 178);
+		glVertex2f(143, 202);
+		glVertex2f(126, 202);
+	}
+	{
+		glVertex2f(151, 178);
+		glVertex2f(169, 178);
+		glVertex2f(169, 202);
+		glVertex2f(151, 202);
+	}
+	{
+		glVertex2f(176, 178);
+		glVertex2f(194, 178);
+		glVertex2f(194, 202);
+		glVertex2f(176, 202);
+	}
+
+	glEnd();
+
+	glColor3f(1, 1, 1);
+	font->ChangeSize(lkn::TYPE_NORMAL);
+	glPushMatrix();
+	{
+		int name_value = wcslen(parameter_name[type1]);
+		glTranslatef((4 - name_value) * 5, 0, 0);
+		font->DrawStringW(86, 182, L"%s", parameter_name[type1]);
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		int name_value = wcslen(parameter_name[type2]);
+		glTranslatef((4 - name_value) * 5, 0, 0);
+		font->DrawStringW(86, 142, L"%s", parameter_name[type2]);
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		int name_value = wcslen(parameter_name[type3]);
+		glTranslatef((4 - name_value) * 5, 0, 0);
+		font->DrawStringW(86, 102, L"%s", parameter_name[type3]);
+	}
+	glPopMatrix();
+
+	font->DrawStringW(128, 182, L"+%2d  %3d⇒%3d", super_up_para, para1 - super_up_para, para1);
+	font->DrawStringW(128, 142, L"+%2d  %3d⇒%3d", up_para, para2 - up_para, para2);
+	font->DrawStringW(128, 102, L"-%2d  %3d⇒%3d", down_para, para3 + down_para, para3);
+
+	message_box->Draw(NULL, 0);
+	font->DrawStringW(70, 60, L"「%s」が%d上がりました。", parameter_name[type1], super_up_para);
+	font->DrawStringW(70, 40, L"「%s」が%d上がりました。", parameter_name[type2], up_para);
+	font->DrawStringW(70, 20, L"「%s」が%d下がりました。", parameter_name[type3], down_para);
+
+
+	glDisable(GL_BLEND);
 }
 
 void light_parameter_up(int type, unsigned short& para) {
@@ -187,6 +403,10 @@ void light_parameter_up(int type, unsigned short& para) {
 
 		up_para = 7 + (rand() % 5-2);
 		para += up_para;
+		if (para > 999) {
+			up_para -= (para - 999);
+			para = 999;
+		}
 	}
 
 	status_mask_image->changeImage();

@@ -30,6 +30,8 @@ lkn::Sound* spring_music;
 lkn::Sound* battle_music;
 lkn::Sound* battle_lose_music;
 
+lkn::Sound* training_music;
+
 ///////////////////////////‰æ‘œ
 lkn::Image* title_image;
 lkn::Image* title_background_image;
@@ -142,6 +144,8 @@ void init(void) {
 
 	battle_music = new lkn::Sound("sound/battle_music3.wav");
 	battle_lose_music = new lkn::Sound("sound/battle_lose.wav");
+
+	training_music = new lkn::Sound("sound/training_music.wav");
 
 	title_image = new lkn::Image("image/title2.bmp", lkn::IMAGE_TYPE_RGBA_W);
 	title_background_image = new lkn::Image("image/title_background.bmp", lkn::IMAGE_TYPE_RGB);

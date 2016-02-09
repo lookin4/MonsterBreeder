@@ -471,6 +471,7 @@ void training_mode() {
 		else if (message == yes_message) {
 			farm_init = 0;
 			message = NULL;
+			alSourceStop(spring_music->source);
 			func = training;
 		}
 	}
