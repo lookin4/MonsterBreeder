@@ -1,10 +1,15 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include"../GL/freeglut.h"
 #include"../lkn_library/sound.h"
 #include"../lkn_library/input_manager.h"
 #include"../lkn_library/image.h"
+#include"../game/monster.h"
 #include"almighty.h"
 #include"title.h"
 
+extern game::Monster* monster;
+extern game::Suezo* suezo;
 
 
 int title_count = 0;
@@ -24,6 +29,24 @@ void title() {
 		eye->x = 0;
 		eye->z = 1000;
 		frame = 0;
+		
+		
+		monster = suezo;
+
+		
+
+		//////////////////////////////
+		wcscpy(monster->name, L"‚·‚¦‚«‚·‚¦‚¼[");
+		monster->HP = 90;
+		monster->power_point = 100;
+		monster->intelligence_point = 180;
+		monster->hit_probability_point = 170;
+		monster->dodge_point = 120;
+		monster->strong_point = 80;
+		//////////////////////////////
+
+
+
 	}
 
 	glColor4f(1, 1, 1, 1);

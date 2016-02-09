@@ -6,12 +6,12 @@
 extern lkn::Image* suezo_eye_image;
 
 wchar_t parameter_name[6][16] = {
-	L" ライフ",
-	L" ちから",
-	L"かしこさ",
-	L"  命中",
-	L"  回避",
-	L" 丈夫さ",
+	L"ライフ\0",
+	L"ちから\0",
+	L"かしこさ\0",
+	L"命中\0",
+	L"回避\0",
+	L"丈夫さ\0",
 };
 
 

@@ -11,6 +11,7 @@
 #include "file\almighty.h"
 #include "game\monster.h"
 #include"game\message_box.h"
+#include"game\player.h"
 
 //#pragma comment(lib, "glut32.lib")
 
@@ -63,7 +64,11 @@ lkn::Vec3* target;
 game::Suezo* suezo;
 game::Monorisu* monorisu;
 
+game::Monster* monster;
+
 game::MyMessageBox* message_box;
+
+game::Player* player;
 
 
 int frame = 0;
@@ -171,6 +176,8 @@ void init(void) {
 	monorisu = new game::Monorisu();
 
 	message_box = new game::MyMessageBox();
+
+	player = new game::Player();
 
 	func = title;
 }

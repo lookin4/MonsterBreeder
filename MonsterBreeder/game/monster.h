@@ -4,17 +4,28 @@
 
 namespace game {
 
-    class Monster {
-    public :
-		Monster():
-			pos(0,0,0),
-			scl(1,1,1),
-			rot(0,0,0),
+	enum {
+		TYPE_HP,//ÉâÉCÉt
+		TYPE_POWER,//ÇøÇ©ÇÁ
+		TYPE_INTELLIGENCE,//Ç©ÇµÇ±Ç≥
+		TIPE_HIT_PROBABILITY,//ñΩíÜ
+		TYPE_DODGE,//âÒî
+		TYPE_STRONG//è‰ïvÇ≥
+	};
+
+
+
+	class Monster {
+	public:
+		Monster() :
+			pos(0, 0, 0),
+			scl(1, 1, 1),
+			rot(0, 0, 0),
 			age(0)
 		{}
 		~Monster() {}
 
-        lkn::Vec3 pos;
+		lkn::Vec3 pos;
 		lkn::Vec3 scl;
 		lkn::Vec3 rot;
 
@@ -39,11 +50,11 @@ namespace game {
 
 
 		virtual void Draw() = 0;
-    };
+	};
 
 	class Suezo :public Monster {
 	public:
-		Suezo(){}
+		Suezo() {}
 		~Suezo() {}
 
 		virtual void Draw();

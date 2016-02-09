@@ -19,6 +19,10 @@ float bakkunakkuru_count = 30;
 extern game::Suezo* suezo;
 extern game::Monorisu* monorisu;
 
+
+extern game::Monster* monster;
+
+
 void battle() {
 	if (battle_init == 0) {
 
@@ -234,7 +238,7 @@ void battle() {
 	glScalef(0.7f, 0.7f, 0.7f);
 	glColor4f(0, 0, 0, 1);
 
-	monorisu->Draw();
+	monster->Draw();
 
 	glPopMatrix();
 	/////////////////////////////////////////////////////////////////////////////////////////////////

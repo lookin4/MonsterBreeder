@@ -4,6 +4,7 @@
 #include"../game/monster.h"
 #include"../game/message_box.h"
 #include"training.h"
+#include"../game/player.h"
 
 #define _USE_MATH_DEFINES
 #include<math.h>
@@ -45,8 +46,11 @@ bool battle_flag;
 
 extern game::Suezo* suezo;
 extern game::Monorisu* monorisu;
+extern game::Monster* monster;
 
 extern game::MyMessageBox* message_box;
+
+extern game::Player* player;
 
 extern lkn::Image* status_mask_image;
 
@@ -63,9 +67,7 @@ void farm() {
 		farm_frame = 0;
 		angle = 0;
 
-		suezo->pos.x = 0.f;
-		suezo->pos.y = 0.f;
-		suezo->pos.z = -4500.f;
+		
 
 		farm_init = 1;
 		alSourcePlay(spring_music->source);
@@ -76,15 +78,9 @@ void farm() {
 		battle_flag = false;
 		srand(time(NULL));
 
-		//////////////////////////////
-		wcscpy(suezo->name,L"すえきすえぞー");
-		suezo->HP = 90;
-		suezo->power_point = 100;
-		suezo->intelligence_point = 180;
-		suezo->hit_probability_point = 170;
-		suezo->dodge_point = 120;
-		suezo->strong_point = 80;
-		//////////////////////////////
+		monster->pos.x = 0.f;
+		monster->pos.y = 0.f;
+		monster->pos.z = -4500.f;
 	}
 	farm_frame++;
 	
@@ -95,20 +91,20 @@ void farm() {
 
 	//glTranslatef(sin(angle * M_PI / 180)*farm_frame, 0, cos(angle * M_PI / 180)*farm_frame);
 	if (farm_frame % 70 >= 30) {
-		if (-farm_x + 200 < (suezo->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) &&
-			(suezo->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) < farm_x - 200 &&
-			-farm_z + 200 < (suezo->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) &&
-			(suezo->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) < farm_z - 200) {
-			suezo->pos.x += sin(angle* M_PI / 180) * 500 / 100.0f;
-			suezo->pos.z += cos(angle* M_PI / 180) * 500 / 100.0f;
+		if (-farm_x + 200 < (monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) &&
+			(monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) < farm_x - 200 &&
+			-farm_z + 200 < (monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) &&
+			(monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) < farm_z - 200) {
+			monster->pos.x += sin(angle* M_PI / 180) * 500 / 100.0f;
+			monster->pos.z += cos(angle* M_PI / 180) * 500 / 100.0f;
 		}
 		else {
 			angle += 90;
 		}
 	}
 
-	target->x = suezo->pos.x;
-	target->z = suezo->pos.z;
+	target->x = monster->pos.x;
+	target->z = monster->pos.z;
 	if (farm_frame % 70 == 69) {
 		angle += (rand() % 40) - 20;
 	}
@@ -116,7 +112,7 @@ void farm() {
 
 	//printf("angle = %d  frame = %d", angle, farm_frame);
 	glPushMatrix();
-	glTranslatef(suezo->pos.x, suezo->pos.y - 100, suezo->pos.z);
+	glTranslatef(monster->pos.x, monster->pos.y - 100, monster->pos.z);
 	glRotatef(angle, 0, 1, 0);
 
 
@@ -128,7 +124,7 @@ void farm() {
 	/////////////////////////////////////スエゾー
 
 	glColor4f(1, 1, 0, 1);
-	suezo->Draw();
+	monster->Draw();
 
 	glPopMatrix();
 
@@ -184,9 +180,9 @@ void farm() {
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3f(1, 1, 1);
-	int nen = 1000;
-	int getu = 4;
-	int syu = 1;
+	int nen = 1000 + (player->nengetu / 48);
+	int getu = 1 + (player->nengetu - (48 * (nen-1000))) / 4;
+	int syu = 1 + (player->nengetu - (48 * (nen - 1000)) - (4 * (getu-1)));
 	font->DrawStringW(20, 257, L" %d年", nen);
 	font->DrawStringW(16, 229, L" %2d月%d週", getu, syu);
 
@@ -622,7 +618,7 @@ void status() {
 		glTranslatef(200, -150, 0);
 		glRotatef(-8, 0, 1, 0);
 		glScalef(0.4f, 0.4f, 0.4f);
-		suezo->Draw();
+		monster->Draw();
 		
 	}
 	glPopMatrix();
@@ -678,19 +674,19 @@ void status() {
 
 	glColor3f(1, 1, 1);
 	font->ChangeSize(lkn::TYPE_NORMAL);
-	font->DrawStringW(41, 220, parameter_name[0]);
-	font->DrawStringW(41, 190, parameter_name[1]);
+	font->DrawStringW(46, 220, parameter_name[0]);
+	font->DrawStringW(46, 190, parameter_name[1]);
 	font->DrawStringW(41, 160, parameter_name[2]);
-	font->DrawStringW(41, 130, parameter_name[3]);
-	font->DrawStringW(41, 100, parameter_name[4]);
-	font->DrawStringW(41, 70, parameter_name[5]);
+	font->DrawStringW(51, 130, parameter_name[3]);
+	font->DrawStringW(51, 100, parameter_name[4]);
+	font->DrawStringW(46, 70, parameter_name[5]);
 
-	font->DrawStringW(81, 220, L"Lv.%2d　　　　　　　　　　　%3d",(suezo->HP / 50)+1, suezo->HP);
-	font->DrawStringW(81, 190, L"Lv.%2d　　　　　　　　　　　%3d", (suezo->power_point / 50) + 1, suezo->power_point);
-	font->DrawStringW(81, 160, L"Lv.%2d　　　　　　　　　　　%3d", (suezo->intelligence_point / 50) + 1, suezo->intelligence_point);
-	font->DrawStringW(81, 130, L"Lv.%2d　　　　　　　　　　　%3d", (suezo->hit_probability_point / 50) + 1, suezo->hit_probability_point);
-	font->DrawStringW(81, 100, L"Lv.%2d　　　　　　　　　　　%3d", (suezo->dodge_point / 50) + 1, suezo->dodge_point);
-	font->DrawStringW(81, 70, L"Lv.%2d　　　　　　　　　　　%3d", (suezo->strong_point / 50) + 1, suezo->strong_point);
+	font->DrawStringW(81, 220, L"Lv.%2d　　　　　　　　　　　%3d",(monster->HP / 50)+1, monster->HP);
+	font->DrawStringW(81, 190, L"Lv.%2d　　　　　　　　　　　%3d", (monster->power_point / 50) + 1, monster->power_point);
+	font->DrawStringW(81, 160, L"Lv.%2d　　　　　　　　　　　%3d", (monster->intelligence_point / 50) + 1, monster->intelligence_point);
+	font->DrawStringW(81, 130, L"Lv.%2d　　　　　　　　　　　%3d", (monster->hit_probability_point / 50) + 1, monster->hit_probability_point);
+	font->DrawStringW(81, 100, L"Lv.%2d　　　　　　　　　　　%3d", (monster->dodge_point / 50) + 1, monster->dodge_point);
+	font->DrawStringW(81, 70, L"Lv.%2d　　　　　　　　　　　%3d", (monster->strong_point / 50) + 1, monster->strong_point);
 
 #define GAUGE(a) 107 + (((213 - 107) / 999.0f) * a)
 	glBegin(GL_QUADS);
@@ -698,43 +694,43 @@ void status() {
 	{
 		glVertex2f(107, 235);
 		glVertex2f(107, 219);
-		glVertex2f(GAUGE(suezo->HP), 219);
-		glVertex2f(GAUGE(suezo->HP), 235);
+		glVertex2f(GAUGE(monster->HP), 219);
+		glVertex2f(GAUGE(monster->HP), 235);
 	}
 	glColor4f(1, 0, 0.25f, 1);//ちから
 	{
 		glVertex2f(107, 205);
 		glVertex2f(107, 189);
-		glVertex2f(GAUGE(suezo->power_point), 189);
-		glVertex2f(GAUGE(suezo->power_point), 205);
+		glVertex2f(GAUGE(monster->power_point), 189);
+		glVertex2f(GAUGE(monster->power_point), 205);
 	}
 	glColor4f(0, 1, 0.4f, 1);//かしこさ
 	{
 		glVertex2f(107, 175);
 		glVertex2f(107, 159);
-		glVertex2f(GAUGE(suezo->intelligence_point), 159);
-		glVertex2f(GAUGE(suezo->intelligence_point), 175);
+		glVertex2f(GAUGE(monster->intelligence_point), 159);
+		glVertex2f(GAUGE(monster->intelligence_point), 175);
 	}
 	glColor4f(1, 0, 1, 1);//命中
 	{
 		glVertex2f(107, 145);
 		glVertex2f(107, 129);
-		glVertex2f(GAUGE(suezo->hit_probability_point), 129);
-		glVertex2f(GAUGE(suezo->hit_probability_point), 145);
+		glVertex2f(GAUGE(monster->hit_probability_point), 129);
+		glVertex2f(GAUGE(monster->hit_probability_point), 145);
 	}
 	glColor4f(0, 1, 1, 1);//回避
 	{
 		glVertex2f(107, 115);
 		glVertex2f(107, 99);
-		glVertex2f(GAUGE(suezo->dodge_point), 99);
-		glVertex2f(GAUGE(suezo->dodge_point), 115);
+		glVertex2f(GAUGE(monster->dodge_point), 99);
+		glVertex2f(GAUGE(monster->dodge_point), 115);
 	}
 	glColor4f(0, 0.5f, 1, 1);//丈夫さ
 	{
 		glVertex2f(107, 85);
 		glVertex2f(107, 69);
-		glVertex2f(GAUGE(suezo->strong_point), 69);
-		glVertex2f(GAUGE(suezo->strong_point), 85);
+		glVertex2f(GAUGE(monster->strong_point), 69);
+		glVertex2f(GAUGE(monster->strong_point), 85);
 	}
 
 	////////////////////////////////////////////////////name,age
@@ -768,8 +764,8 @@ void status() {
 	glEnd();
 
 	glColor3f(1, 1, 1);
-	font->DrawStringW(81, 25, suezo->name);
-	int month = suezo->age / 4;
+	font->DrawStringW(81, 25, monster->name);
+	int month = monster->age / 4;
 	int year = month / 12;
 	month -= (year * 12);
 	font->DrawStringW(201, 25, L"%2d歳  %2dカ月",year,month);

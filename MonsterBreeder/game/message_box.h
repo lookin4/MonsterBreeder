@@ -10,7 +10,8 @@ extern lkn::Image* koruto_image;
 namespace game {
 
 	enum {
-		MESSAGE_TYPE_COLT
+		MESSAGE_TYPE_COLT = 1,
+        
 	};
 
 	class MyMessageBox {

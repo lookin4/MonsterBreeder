@@ -35,22 +35,27 @@ namespace game {
 			glVertex2f(270, 85);
 		}
 		glEnd();
-		if (type == MESSAGE_TYPE_COLT) {
-			koruto_image->changeImage();
-		}
+
 		glColor4f(1, 1, 1, 1);
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(0.f, 0.f);
-			glVertex2f(35, 110);
-			glTexCoord2f(0.f, 1.f);
-			glVertex2f(35, 5);
-			glTexCoord2f(1.f, 1.f);
-			glVertex2f(85, 5);
-			glTexCoord2f(1.f, 0.f);
-			glVertex2f(85, 110);
+		if (type != NULL) {
+
+			if (type == MESSAGE_TYPE_COLT) {
+				koruto_image->changeImage();
+			}
+
+			glBegin(GL_QUADS);
+			{
+				glTexCoord2f(0.f, 0.f);
+				glVertex2f(35, 110);
+				glTexCoord2f(0.f, 1.f);
+				glVertex2f(35, 5);
+				glTexCoord2f(1.f, 1.f);
+				glVertex2f(85, 5);
+				glTexCoord2f(1.f, 0.f);
+				glVertex2f(85, 110);
+			}
+			glEnd();
 		}
-		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
