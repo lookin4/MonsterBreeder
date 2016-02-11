@@ -19,7 +19,7 @@ namespace game {
 		MyMessageBox(){}
 		~MyMessageBox() {}
 
-		void Draw(int type,int message_num,...);
+		void Draw(int type,wchar_t* format,...);
 
 	};
 

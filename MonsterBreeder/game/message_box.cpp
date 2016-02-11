@@ -1,8 +1,25 @@
+#define _CRT_NON_CONFORMING_WCSTOK
+#define _CRT_SECURE_NO_WARNINGS
+
 #include"message_box.h"
+#include<stdio.h>
+#include<vector>
+#include<string>
+#include<sstream>
+
+std::vector<std::wstring> wsplit(const std::wstring &str, const wchar_t sep) {
+	std::vector<std::wstring> v;
+	std::wstringstream ss(str);
+	std::wstring buffer;
+	while (std::getline(ss, buffer, sep)) {
+		v.push_back(buffer);
+	}
+	return v;
+}
 
 namespace game {
 
-	void MyMessageBox::Draw(int type, int message_num, ...) {
+	void MyMessageBox::Draw(int type,wchar_t *format, ...) {
 
 		glEnable(GL_BLEND);
 		glBlendFunc(
@@ -59,21 +76,36 @@ namespace game {
 
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
+		wchar_t buf[256];
 
+		wchar_t *tp;
+		std::vector <std::wstring> message;
+		std::vector <const wchar_t*> message2;
 		va_list args;
 		wchar_t* value;
 		int count;
+		if (format == NULL) return;
 
-		if (message_num < 1) return;
+		va_start(args, format);
+		vswprintf_s(buf, format, args);
+		va_end(args);
 
-		va_start(args, message_num);
+		/*while ((tp = wcstok(format, L"\n")) != NULL) {
+			message.push_back(tp);
+			format = NULL;
+		}*/
+		
+		message = wsplit(buf, L'\n');
 
-		for (count = 0; count < message_num; count++) {
+		message2.push_back(message[0].c_str());
+		message2.push_back(message[1].c_str());
+
+		font->DrawStringW(88, 60, message2[1]);
+		/*for (count = 0; count < message_num; count++) {
 			value = va_arg(args, wchar_t*);
 			font->DrawStringW(88, 60-(count * 22),  value);
-		}
+		}*/
 
-		va_end(args);
 
 		
 

@@ -145,6 +145,7 @@ void training() {
 				l_para = NULL;
 				h_para = NULL;
 				up_init = 0;
+				training_init = 0;
 				player->nengetu++;
 				monster->age++;
 				alSourceStop(training_music->source);

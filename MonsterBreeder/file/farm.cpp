@@ -11,6 +11,7 @@
 #include<time.h>
 #include<string.h>
 
+void start_mask();
 void main_manu();
 void training_mode();
 void(*farm_scene)();
@@ -18,6 +19,7 @@ void(*farm_scene)();
 void training_message();
 void yes_message();
 void battle_message();
+void start_message();
 void(*message)();
 
 void status();
@@ -25,10 +27,12 @@ void(*status_mask)();
 
 void field();
 
+int mask_movie;
 
 int farm_command;
 bool farm_init = 0;
 int farm_frame;
+int mask_frame;
 int angle;
 
 int training_command;
@@ -54,82 +58,103 @@ extern game::Player* player;
 
 extern lkn::Image* status_mask_image;
 
+int nen;
+int getu;
+int syu;
 
 void farm() {
 	glEnable(
 		GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	if (farm_init == 0) {
-		farm_scene = main_manu;
-		message = NULL;
+		farm_scene = start_mask;
+		message = start_message;
 
 		farm_command = 0;
 		farm_frame = 0;
+		mask_frame = 0;
 		angle = 0;
 
-		
 
+		alSourcei(
+			spring_music->source,     // ALuint source
+			AL_LOOPING, // ALenum param
+			AL_TRUE);   // ALint value
 		farm_init = 1;
 		alSourcePlay(spring_music->source);
-		eye->y = 1200;
-		eye->x = 1400;
-		eye->z = 2000;
-		colt_flag = false;
-		battle_flag = false;
-		srand(time(NULL));
 
 		monster->pos.x = 0.f;
 		monster->pos.y = 0.f;
 		monster->pos.z = -4500.f;
+
+		eye->y = 1200;
+		eye->x = 1400;
+		eye->z = 2000;
+
+		target->x = monster->pos.x;
+		target->z = monster->pos.z;
+
+		colt_flag = false;
+		battle_flag = false;
+		srand(time(NULL));
+
+		nen = 1000 + (player->nengetu / 48);
+		getu = 1 + (player->nengetu - (48 * (nen - 1000))) / 4;
+		syu = 1 + (player->nengetu - (48 * (nen - 1000)) - (4 * (getu - 1)));
+
+
+		monster->fatigue = 0;
 	}
-	farm_frame++;
-	
+	mask_frame++;
 	field();
+
 
 	glEnable(
 		GL_CULL_FACE);
-
-	//glTranslatef(sin(angle * M_PI / 180)*farm_frame, 0, cos(angle * M_PI / 180)*farm_frame);
-	if (farm_frame % 70 >= 30) {
-		if (-farm_x + 200 < (monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) &&
-			(monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) < farm_x - 200 &&
-			-farm_z + 200 < (monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) &&
-			(monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) < farm_z - 200) {
-			monster->pos.x += sin(angle* M_PI / 180) * 500 / 100.0f;
-			monster->pos.z += cos(angle* M_PI / 180) * 500 / 100.0f;
-		}
-		else {
-			angle += 90;
-		}
+	if (mask_frame < 220) {
 	}
+	else {
+		farm_frame++;
+		//glTranslatef(sin(angle * M_PI / 180)*farm_frame, 0, cos(angle * M_PI / 180)*farm_frame);
+		if (farm_frame % 70 >= 30) {
+			if (-farm_x + 200 < (monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) &&
+				(monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) < farm_x - 200 &&
+				-farm_z + 200 < (monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) &&
+				(monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) < farm_z - 200) {
+				monster->pos.x += sin(angle* M_PI / 180) * 500 / 100.0f;
+				monster->pos.z += cos(angle* M_PI / 180) * 500 / 100.0f;
+			}
+			else {
+				angle += 90;
+			}
+		}
 
-	target->x = monster->pos.x;
-	target->z = monster->pos.z;
-	if (farm_frame % 70 == 69) {
-		angle += (rand() % 40) - 20;
+		target->x = monster->pos.x;
+		target->z = monster->pos.z;
+		if (farm_frame % 70 == 69) {
+			angle += (rand() % 40) - 20;
+		}
+
+
+		//printf("angle = %d  frame = %d", angle, farm_frame);
+		glPushMatrix();
+		glTranslatef(monster->pos.x, monster->pos.y - 100, monster->pos.z);
+		glRotatef(angle, 0, 1, 0);
+
+
+		///////////////////////////////////////モノリス
+
+		//glColor4f(0, 0, 0, 1);
+		//monorisu->Draw();
+
+		/////////////////////////////////////スエゾー
+
+		glColor4f(1, 1, 0, 1);
+		monster->Draw();
+
+		glPopMatrix();
 	}
-
-
-	//printf("angle = %d  frame = %d", angle, farm_frame);
-	glPushMatrix();
-	glTranslatef(monster->pos.x, monster->pos.y - 100, monster->pos.z);
-	glRotatef(angle, 0, 1, 0);
-
-
-	///////////////////////////////////////モノリス
-
-	//glColor4f(0, 0, 0, 1);
-	//monorisu->Draw();
-
-	/////////////////////////////////////スエゾー
-
-	glColor4f(1, 1, 0, 1);
-	monster->Draw();
-
-	glPopMatrix();
-
 	glDisable(GL_DEPTH_TEST);
-
 
 	glDisable(GL_TEXTURE_2D);
 	glMatrixMode(GL_PROJECTION);          /* 投影変換行列の設定 */
@@ -180,15 +205,13 @@ void farm() {
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3f(1, 1, 1);
-	int nen = 1000 + (player->nengetu / 48);
-	int getu = 1 + (player->nengetu - (48 * (nen-1000))) / 4;
-	int syu = 1 + (player->nengetu - (48 * (nen - 1000)) - (4 * (getu-1)));
+	
 	font->DrawStringW(20, 257, L" %d年", nen);
 	font->DrawStringW(16, 229, L" %2d月%d週", getu, syu);
 
 	farm_scene();
 
-	if (message != NULL) {
+	if (message != NULL && mask_frame >200) {
 		message();
 	}
 
@@ -287,6 +310,12 @@ void main_manu() {
 			status_mask = NULL;
 		}
 	}
+	else if (message == start_message) {
+		if (lkn::InputManager::getInstance()->keyPless(0x20)) {////Space Cancel
+			alSourcePlay(decision_music->source);
+			message = NULL;
+		}
+	}
 	else {
 		if (lkn::InputManager::getInstance()->keyPless('w')) {////up select
 			alSourcePlay(select_music->source);
@@ -347,6 +376,58 @@ void main_manu() {
 			status_mask = status;
 		}
 
+	}
+}
+
+void start_mask() {
+	glMatrixMode(GL_PROJECTION);          /* 投影変換行列の設定 */
+	glLoadIdentity();                     /* 変換行列の初期化 */
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glOrtho(
+		0,//GLdouble left,
+		300,//GLdouble right,
+		0,//GLdouble bottom,
+		300,//GLdouble top,
+		1,//GLdouble zNear, 
+		-1//GLdouble zFar
+		);
+
+	glColor4f(0, 0, 0, 1);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(0, 0);
+		glVertex2f(300, 0);
+		glVertex2f(300, 300);
+		glVertex2f(0, 300);
+	}
+	glEnd();
+	
+	if (mask_frame <= 70) {
+		mask_movie = mask_frame;
+	}
+	else if (mask_frame >= 130) {
+		mask_movie = 200 - mask_frame;
+	}
+	glColor3f(1, 1, 1);
+	font->ChangeSize(lkn::TYPE_NORMAL);
+	font->DrawStringW(-12+(mask_movie/2), 229, L" %4d年",nen);
+
+	font->DrawStringW(308-(mask_movie*1.5f), 79, L" %2d月 %d週", getu,syu);
+
+	glColor3f(1, 0, 0);
+	glLineWidth(5);
+	glBegin(GL_LINES);
+	{
+		glVertex2f(0,220); glVertex2f(mask_movie, 220);
+		glVertex2f(280-mask_movie, 70); glVertex2f(300, 70);
+	}
+	glEnd();
+	if (lkn::InputManager::getInstance()->keyPless(0x0d)) {
+		mask_frame = 200;
+	}
+	if (mask_frame == 200) {
+		farm_scene = main_manu;
 	}
 }
 
@@ -414,12 +495,12 @@ void training_mode() {
 	font->DrawStringW(223, 148, training_menu[7]);
 	font->DrawStringW(164, 121, training_menu[8]);
 	font->DrawStringW(223, 121, training_menu[9]);
-	
+
 	font->DrawStringW(51, 185, training_menu[training_command]);
 	font->DrawStringW(31, 155, training_menu2[training_command]);
 	font->DrawStringW(31, 125, training_menu3[training_command]);
 
-	
+
 
 	if (lkn::InputManager::getInstance()->keyPless('w')) {////up select
 		alSourcePlay(select_music->source);
@@ -471,7 +552,7 @@ void training_mode() {
 		else if (message == yes_message) {
 			farm_init = 0;
 			message = NULL;
-			alSourceStop(spring_music->source);
+			alSourcePause(spring_music->source);
 			func = training;
 		}
 	}
@@ -485,7 +566,7 @@ void training_mode() {
 }
 
 void battle_message() {
-	message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"大会に出る？");
+	//message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"大会に出る？");
 	glEnable(GL_BLEND);
 	glBlendFunc(
 		GL_SRC_ALPHA,
@@ -523,7 +604,7 @@ void battle_message() {
 }
 
 void training_message() {
-	message_box->Draw(game::MESSAGE_TYPE_COLT, 2, L"それじゃあトレーニングを", L"はじめようか？");
+	//message_box->Draw(game::MESSAGE_TYPE_COLT, 2, L"それじゃあトレーニングを", L"はじめようか？");
 	glEnable(GL_BLEND);
 	glBlendFunc(
 		GL_SRC_ALPHA,
@@ -561,7 +642,28 @@ void training_message() {
 }
 
 void yes_message() {
-	message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"それじゃあ頑張ろうね！");
+	//message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"それじゃあ頑張ろうね！");
+}
+
+void start_message() {
+	if (monster->fatigue <= 5) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, L"%sはすっごく\n元気だよ！！",monster->name);
+	}
+	/*else if (monster->fatigue <= 25) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは元気だよ！");
+	}
+	else if (monster->fatigue <= 45) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは元気みたい。");
+	}
+	else if (monster->fatigue <= 65) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sはちょっと疲れているみたい・・・");
+	}
+	else if (monster->fatigue <= 85) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは疲れているみたい・・・");
+	}
+	else  {
+		message_box->Draw(game::MESSAGE_TYPE_COLT,L"%sはすっごく疲れているみたい・・・\n休ませてあげようよ・・・",monster->name);
+	}*/
 }
 
 
@@ -571,7 +673,7 @@ void status() {
 		GL_SRC_ALPHA,
 		GL_ONE_MINUS_SRC_ALPHA
 		);
-	glColor4f(0, 0, 0,0.3f);
+	glColor4f(0, 0, 0, 0.3f);
 	glBegin(GL_QUADS);
 	{
 		glVertex2f(0, 300);
@@ -587,7 +689,7 @@ void status() {
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	{
-		glTexCoord2f(0,0);
+		glTexCoord2f(0, 0);
 		glVertex2f(10, 290);
 		glTexCoord2f(0, 1);
 		glVertex2f(10, 10);
@@ -620,7 +722,7 @@ void status() {
 		glRotatef(-8, 0, 1, 0);
 		glScalef(0.4f, 0.4f, 0.4f);
 		monster->Draw();
-		
+
 	}
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
@@ -682,7 +784,7 @@ void status() {
 	font->DrawStringW(51, 100, parameter_name[4]);
 	font->DrawStringW(46, 70, parameter_name[5]);
 
-	font->DrawStringW(81, 220, L"Lv.%2d　　　　　　　　　　　%3d",(monster->HP / 50)+1, monster->HP);
+	font->DrawStringW(81, 220, L"Lv.%2d　　　　　　　　　　　%3d", (monster->HP / 50) + 1, monster->HP);
 	font->DrawStringW(81, 190, L"Lv.%2d　　　　　　　　　　　%3d", (monster->power_point / 50) + 1, monster->power_point);
 	font->DrawStringW(81, 160, L"Lv.%2d　　　　　　　　　　　%3d", (monster->intelligence_point / 50) + 1, monster->intelligence_point);
 	font->DrawStringW(81, 130, L"Lv.%2d　　　　　　　　　　　%3d", (monster->hit_probability_point / 50) + 1, monster->hit_probability_point);
@@ -769,10 +871,10 @@ void status() {
 	int month = monster->age / 4;
 	int year = month / 12;
 	month -= (year * 12);
-	font->DrawStringW(201, 25, L"%2d歳  %2dカ月",year,month);
+	font->DrawStringW(201, 25, L"%2d歳  %2dカ月", year, month);
 
 	min_font->ChangeSize(lkn::TYPE_MIN);
-	min_font->DrawStringW(71,48,L"NAME");
+	min_font->DrawStringW(71, 48, L"NAME");
 	min_font->DrawStringW(191, 48, L"AGE");
 
 	glBegin(GL_LINES);
