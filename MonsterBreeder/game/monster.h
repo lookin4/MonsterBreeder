@@ -21,7 +21,8 @@ namespace game {
 			pos(0, 0, 0),
 			scl(1, 1, 1),
 			rot(0, 0, 0),
-			age(0)
+			age(0),
+			fatigue(0)
 		{}
 		~Monster() {}
 
@@ -36,7 +37,7 @@ namespace game {
 		char personality_type;//性格
 		unsigned char body_type;//体型
 		unsigned char loyalty;//忠誠度
-		unsigned char fatigue;//疲労度
+		int fatigue;//疲労度
 		unsigned char stress;//ストレス
 		unsigned char speed;//移動速度
 		unsigned char re_guts;//ガッツ回復

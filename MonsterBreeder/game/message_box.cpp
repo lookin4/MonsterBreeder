@@ -59,6 +59,9 @@ namespace game {
 			if (type == MESSAGE_TYPE_COLT) {
 				koruto_image->changeImage();
 			}
+			else if (type == MESSAGE_TYPE_COLT_KOMARIGAO) {
+				koruto_komarigao_image->changeImage();
+			}
 
 			glBegin(GL_QUADS);
 			{
@@ -78,33 +81,26 @@ namespace game {
 		glDisable(GL_BLEND);
 		wchar_t buf[256];
 
-		wchar_t *tp;
 		std::vector <std::wstring> message;
 		std::vector <const wchar_t*> message2;
 		va_list args;
-		wchar_t* value;
-		int count;
+
 		if (format == NULL) return;
 
 		va_start(args, format);
 		vswprintf_s(buf, format, args);
 		va_end(args);
 
-		/*while ((tp = wcstok(format, L"\n")) != NULL) {
-			message.push_back(tp);
-			format = NULL;
-		}*/
+		
 		
 		message = wsplit(buf, L'\n');
-
-		message2.push_back(message[0].c_str());
-		message2.push_back(message[1].c_str());
-
-		font->DrawStringW(88, 60, message2[1]);
-		/*for (count = 0; count < message_num; count++) {
-			value = va_arg(args, wchar_t*);
-			font->DrawStringW(88, 60-(count * 22),  value);
-		}*/
+		for (int i = 0; i < message.size(); i++) {
+			message2.push_back(message[i].c_str());
+		}
+		for (int i = 0; i < message2.size(); i++) {
+			font->DrawStringW(88, 60-(i*22), message2[i]);
+		}
+		
 
 
 		

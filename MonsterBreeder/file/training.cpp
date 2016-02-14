@@ -124,7 +124,7 @@ void training() {
 
 	if (lkn::InputManager::getInstance()->keyPless(0x0d)) {////Enter Dicision
 		if (result == NULL) {
-			if (rand() % 20 >= 0) {
+			if (rand() % 100 >= monster->fatigue / 2.f) {
 				result = success;
 			}
 			else {
@@ -154,7 +154,25 @@ void training() {
 			}
 		}
 		else if (result == failure) {
-			
+			result = NULL;
+			if (l_para != NULL) {
+				monster->fatigue += 10;
+			}
+			else {
+				monster->fatigue += 20;
+			}
+			if (monster->fatigue > 100) {
+				monster->fatigue = 100;
+			}
+			l_para = NULL;
+			h_para = NULL;
+			up_init = 0;
+			training_init = 0;
+			player->nengetu++;
+			monster->age++;
+			alSourceStop(training_music->source);
+
+			func = farm;
 		}
 	}
 }
@@ -188,9 +206,9 @@ void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, 
 	if (up_init == 0) {
 		up_init = 1;
 
-		super_up_para = 10 + (rand() % 5 - 2);
-		up_para = 5 + (rand() % 5 - 2);
-		down_para = 3 + (rand() % 3 - 2);
+		super_up_para = 10 + (rand() % 5 - 2) - (8 * ( monster->fatigue / 100));
+		up_para = 5 + (rand() % 5 - 2) - (3 * ( monster->fatigue / 100));
+		down_para = 3 + (rand() % 3 - 2) + (3 * ( monster->fatigue / 100));
 		para1 += super_up_para;
 		para2 += up_para;
 		para3 -= down_para;
@@ -206,6 +224,8 @@ void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, 
 			down_para -= (1-para3);
 			para3 = 1;
 		}
+
+		monster->fatigue += 25;
 
 	}
 
@@ -388,7 +408,7 @@ void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, 
 	font->DrawStringW(128, 142, L"+%2d  %3d⇒%3d", up_para, para2 - up_para, para2);
 	font->DrawStringW(128, 102, L"-%2d  %3d⇒%3d", down_para, para3 + down_para, para3);
 
-	message_box->Draw(NULL, 0);
+	message_box->Draw(NULL, NULL);
 	font->DrawStringW(70, 60, L"「%s」が%d上がりました。", parameter_name[type1], super_up_para);
 	font->DrawStringW(70, 40, L"「%s」が%d上がりました。", parameter_name[type2], up_para);
 	font->DrawStringW(70, 20, L"「%s」が%d下がりました。", parameter_name[type3], down_para);
@@ -402,11 +422,16 @@ void light_parameter_up(int type, unsigned short& para) {
 	if (up_init == 0) {
 		up_init = 1;
 
-		up_para = 7 + (rand() % 5-2);
+		up_para = 7 + (rand() % 5-2)-(5 * (monster->fatigue/100));
 		para += up_para;
 		if (para > 999) {
 			up_para -= (para - 999);
 			para = 999;
+		}
+
+		monster->fatigue += 12;
+		if (monster->fatigue > 100) {
+			monster->fatigue = 100;
 		}
 	}
 

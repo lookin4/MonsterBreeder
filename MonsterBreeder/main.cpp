@@ -32,6 +32,8 @@ lkn::Sound* battle_lose_music;
 
 lkn::Sound* training_music;
 
+lkn::Sound* rest_music;
+
 ///////////////////////////‰æ‘œ
 lkn::Image* title_image;
 lkn::Image* title_background_image;
@@ -51,6 +53,7 @@ lkn::Image* battle_selectbar_image;
 
 lkn::Image* message_box_image;
 lkn::Image* koruto_image;
+lkn::Image* koruto_komarigao_image;
 
 lkn::Image* no_image;
 
@@ -142,6 +145,8 @@ void init(void) {
 	select_music = new lkn::Sound("sound/select_music.wav");
 	spring_music = new lkn::Sound("sound/spring_music.wav");
 
+	rest_music = new lkn::Sound("sound/rest_music.wav");
+
 	battle_music = new lkn::Sound("sound/battle_music3.wav");
 	battle_lose_music = new lkn::Sound("sound/battle_lose.wav");
 
@@ -163,7 +168,9 @@ void init(void) {
 	battle_background_image = new lkn::Image("image/battle_background.bmp", lkn::IMAGE_TYPE_RGB);
 	battle_selectbar_image = new lkn::Image("image/battle_selectbar.bmp", lkn::IMAGE_TYPE_RGBA_W);
 
-	koruto_image = new lkn::Image("image/koruto.bmp", lkn::IMAGE_TYPE_RGBA_W);
+	koruto_image = new lkn::Image("image/END.bmp", lkn::IMAGE_TYPE_RGBA_W);
+	koruto_komarigao_image = new lkn::Image("image/koruto_komarigao.bmp", lkn::IMAGE_TYPE_RGBA_W);
+
 	message_box_image = new lkn::Image("image/message_box.bmp", lkn::IMAGE_TYPE_RGBA_B);
 
 	no_image = new lkn::Image("image/no_image.bmp", lkn::IMAGE_TYPE_RGB);

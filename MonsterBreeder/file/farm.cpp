@@ -11,6 +11,7 @@
 #include<time.h>
 #include<string.h>
 
+void rest();
 void start_mask();
 void main_manu();
 void training_mode();
@@ -35,6 +36,11 @@ int farm_frame;
 int mask_frame;
 int angle;
 
+bool rest_init = false;
+int rest_count;
+int rest_frame;
+float mask_color;
+
 int training_command;
 
 int farm_movie;
@@ -57,6 +63,7 @@ extern game::MyMessageBox* message_box;
 extern game::Player* player;
 
 extern lkn::Image* status_mask_image;
+extern lkn::Sound* rest_music;
 
 int nen;
 int getu;
@@ -75,6 +82,12 @@ void farm() {
 		mask_frame = 0;
 		angle = 0;
 
+		if (monster->fatigue > 100) {
+			monster->fatigue = 100;
+		}
+		if (monster->fatigue < 0) {
+			monster->fatigue = 0;
+		}
 
 		alSourcei(
 			spring_music->source,     // ALuint source
@@ -102,8 +115,6 @@ void farm() {
 		getu = 1 + (player->nengetu - (48 * (nen - 1000))) / 4;
 		syu = 1 + (player->nengetu - (48 * (nen - 1000)) - (4 * (getu - 1)));
 
-
-		monster->fatigue = 0;
 	}
 	mask_frame++;
 	field();
@@ -111,18 +122,18 @@ void farm() {
 
 	glEnable(
 		GL_CULL_FACE);
-	if (mask_frame < 220) {
+	if (mask_frame < 220 || rest_init == true) {
 	}
 	else {
 		farm_frame++;
 		//glTranslatef(sin(angle * M_PI / 180)*farm_frame, 0, cos(angle * M_PI / 180)*farm_frame);
 		if (farm_frame % 70 >= 30) {
-			if (-farm_x + 200 < (monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) &&
-				(monster->pos.x + sin(angle* M_PI / 180) * 500 / 100.0f) < farm_x - 200 &&
-				-farm_z + 200 < (monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) &&
-				(monster->pos.z + cos(angle* M_PI / 180) * 500 / 100.0f) < farm_z - 200) {
-				monster->pos.x += sin(angle* M_PI / 180) * 500 / 100.0f;
-				monster->pos.z += cos(angle* M_PI / 180) * 500 / 100.0f;
+			if (-farm_x + 200 < (monster->pos.x + sin(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue)) &&
+				(monster->pos.x + sin(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue)) < farm_x - 200 &&
+				-farm_z + 200 < (monster->pos.z + cos(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue)) &&
+				(monster->pos.z + cos(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue)) < farm_z - 200) {
+				monster->pos.x += sin(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue);
+				monster->pos.z += cos(angle* M_PI / 180) * 500 / (100.0f + monster->fatigue);
 			}
 			else {
 				angle += 90;
@@ -135,25 +146,25 @@ void farm() {
 			angle += (rand() % 40) - 20;
 		}
 
-
-		//printf("angle = %d  frame = %d", angle, farm_frame);
-		glPushMatrix();
-		glTranslatef(monster->pos.x, monster->pos.y - 100, monster->pos.z);
-		glRotatef(angle, 0, 1, 0);
-
-
-		///////////////////////////////////////モノリス
-
-		//glColor4f(0, 0, 0, 1);
-		//monorisu->Draw();
-
-		/////////////////////////////////////スエゾー
-
-		glColor4f(1, 1, 0, 1);
-		monster->Draw();
-
-		glPopMatrix();
 	}
+	//printf("angle = %d  frame = %d", angle, farm_frame);
+	glPushMatrix();
+	glTranslatef(monster->pos.x, monster->pos.y - 100, monster->pos.z);
+	glRotatef(angle, 0, 1, 0);
+
+
+	///////////////////////////////////////モノリス
+
+	//glColor4f(0, 0, 0, 1);
+	//monorisu->Draw();
+
+	/////////////////////////////////////スエゾー
+
+	glColor4f(1, 1, 0, 1);
+	monster->Draw();
+
+	glPopMatrix();
+
 	glDisable(GL_DEPTH_TEST);
 
 	glDisable(GL_TEXTURE_2D);
@@ -205,13 +216,13 @@ void farm() {
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3f(1, 1, 1);
-	
+
 	font->DrawStringW(20, 257, L" %d年", nen);
 	font->DrawStringW(16, 229, L" %2d月%d週", getu, syu);
 
 	farm_scene();
 
-	if (message != NULL && mask_frame >200) {
+	if (message != NULL && mask_frame > 200) {
 		message();
 	}
 
@@ -259,12 +270,57 @@ wchar_t training_menu3[10][32] = {
 	L"かしこさ↓　疲労↑↑"
 };
 
+void rest() {
+	if (rest_init == false) {
+		alSourcePlay(rest_music->source);
+
+		rest_frame = 0;
+		rest_count = 0;
+		rest_init = true;
+		mask_color = 0.f;
+
+		angle = 0;
+		monster->pos.x = 0;
+		monster->pos.z = -4500.f;
+	}
+	if (rest_frame * 2 <= 450) {
+		farm_movie = 450 - (rest_frame * 2);
+	}
+	rest_frame++;
+	if (rest_frame > 230) {
+		mask_color += 0.01f;
+	}
+	if (rest_frame > 400) {
+		farm_init = 0;
+		rest_init = 0;
+		player->nengetu++;
+		monster->age++;
+		monster->fatigue -= 40;
+	}
+	glEnable(GL_BLEND);
+	glBlendFunc(
+		GL_SRC_ALPHA,
+		GL_ONE_MINUS_SRC_ALPHA
+		);
+	glColor4f(0, 0, 0, mask_color);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(0, 300);
+		glVertex2f(0, 0);
+		glVertex2f(300, 0);
+		glVertex2f(300, 300);
+	}
+	glEnd();
+	glDisable(GL_BLEND);
+
+}
+
 void main_manu() {
 	glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
 	glBegin(GL_QUADS);
 	{
-		glVertex2f(235, 88);
-		glVertex2f(280, 88);
+		glVertex2f(235, 142);
+		glVertex2f(280, 142);
 		glVertex2f(280, 250);
 		glVertex2f(235, 250);
 	}
@@ -285,8 +341,8 @@ void main_manu() {
 		glVertex2f(235.3f, 196); glVertex2f(280, 196);
 		glVertex2f(235.3f, 169); glVertex2f(280, 169);
 		glVertex2f(235.3f, 142); glVertex2f(280, 142);
-		glVertex2f(235.3f, 115); glVertex2f(280, 115);
-		glVertex2f(235.3f, 88); glVertex2f(280, 88);
+		//glVertex2f(235.3f, 115); glVertex2f(280, 115);
+		//glVertex2f(235.3f, 88); glVertex2f(280, 88);
 	}
 	glEnd();
 
@@ -297,9 +353,9 @@ void main_manu() {
 	font->DrawStringW(243, 229, L" 育成");
 	font->DrawStringW(243, 202, L" 休養");
 	font->DrawStringW(243, 175, L" 大会");
-	font->DrawStringW(233, 148, L" アイテム");
-	font->DrawStringW(233, 121, L" ファイル");
-	font->DrawStringW(233, 94, L" パークへ");
+	font->DrawStringW(228, 148, L" パラメータ");
+	//font->DrawStringW(233, 121, L" ファイル");
+	//font->DrawStringW(233, 94, L" パークへ");
 
 
 	if (status_mask != NULL) {
@@ -311,7 +367,7 @@ void main_manu() {
 		}
 	}
 	else if (message == start_message) {
-		if (lkn::InputManager::getInstance()->keyPless(0x20)) {////Space Cancel
+		if (lkn::InputManager::getInstance()->keyPless(0x0d)) {////Space Cancel
 			alSourcePlay(decision_music->source);
 			message = NULL;
 		}
@@ -363,6 +419,10 @@ void main_manu() {
 			else if (farm_command == FARM_TRAINING) {
 				farm_scene = training_mode;
 			}
+			else if (farm_command == FARM_REST) {
+				alSourceStop(spring_music->source);
+				farm_scene = rest;
+			}
 		}
 
 		if (lkn::InputManager::getInstance()->keyPless(0x20)) {////Space Cancel
@@ -402,7 +462,7 @@ void start_mask() {
 		glVertex2f(0, 300);
 	}
 	glEnd();
-	
+
 	if (mask_frame <= 70) {
 		mask_movie = mask_frame;
 	}
@@ -411,16 +471,16 @@ void start_mask() {
 	}
 	glColor3f(1, 1, 1);
 	font->ChangeSize(lkn::TYPE_NORMAL);
-	font->DrawStringW(-12+(mask_movie/2), 229, L" %4d年",nen);
+	font->DrawStringW(-12 + (mask_movie / 2), 229, L" %4d年", nen);
 
-	font->DrawStringW(308-(mask_movie*1.5f), 79, L" %2d月 %d週", getu,syu);
+	font->DrawStringW(308 - (mask_movie*1.5f), 79, L" %2d月 %d週", getu, syu);
 
 	glColor3f(1, 0, 0);
 	glLineWidth(5);
 	glBegin(GL_LINES);
 	{
-		glVertex2f(0,220); glVertex2f(mask_movie, 220);
-		glVertex2f(280-mask_movie, 70); glVertex2f(300, 70);
+		glVertex2f(0, 220); glVertex2f(mask_movie, 220);
+		glVertex2f(280 - mask_movie, 70); glVertex2f(300, 70);
 	}
 	glEnd();
 	if (lkn::InputManager::getInstance()->keyPless(0x0d)) {
@@ -547,6 +607,7 @@ void training_mode() {
 			}
 			else if (farm_yes_no == lkn::NO) {
 				message = NULL;
+				farm_yes_no = 0;
 			}
 		}
 		else if (message == yes_message) {
@@ -559,14 +620,18 @@ void training_mode() {
 
 	if (lkn::InputManager::getInstance()->keyPless(0x20)) {////Space Cancel
 		alSourcePlay(cancel_music->source);
-		if (farm_scene == training_mode) {
+		if (message != NULL) {
+			message = NULL;
+		}
+		else if (farm_scene == training_mode) {
+			farm_yes_no = 0;
 			farm_scene = main_manu;
 		}
 	}
 }
 
 void battle_message() {
-	//message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"大会に出る？");
+	message_box->Draw(game::MESSAGE_TYPE_COLT, L"大会に出る？");
 	glEnable(GL_BLEND);
 	glBlendFunc(
 		GL_SRC_ALPHA,
@@ -604,7 +669,7 @@ void battle_message() {
 }
 
 void training_message() {
-	//message_box->Draw(game::MESSAGE_TYPE_COLT, 2, L"それじゃあトレーニングを", L"はじめようか？");
+	message_box->Draw(game::MESSAGE_TYPE_COLT, L"それじゃあトレーニングを\nはじめようか？");
 	glEnable(GL_BLEND);
 	glBlendFunc(
 		GL_SRC_ALPHA,
@@ -642,28 +707,28 @@ void training_message() {
 }
 
 void yes_message() {
-	//message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"それじゃあ頑張ろうね！");
+	message_box->Draw(game::MESSAGE_TYPE_COLT, L"それじゃあ頑張ろうね！");
 }
 
 void start_message() {
 	if (monster->fatigue <= 5) {
-		message_box->Draw(game::MESSAGE_TYPE_COLT, L"%sはすっごく\n元気だよ！！",monster->name);
+		message_box->Draw(game::MESSAGE_TYPE_COLT, L"%sはすっごく元気だよ！！", monster->name);
 	}
-	/*else if (monster->fatigue <= 25) {
-		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは元気だよ！");
+	else if (monster->fatigue <= 25) {
+		message_box->Draw(game::MESSAGE_TYPE_COLT, L"%sは元気だよ！", monster->name);
 	}
 	else if (monster->fatigue <= 45) {
-		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは元気みたい。");
+		message_box->Draw(game::MESSAGE_TYPE_COLT, L"%sは元気みたい。", monster->name);
 	}
 	else if (monster->fatigue <= 65) {
-		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sはちょっと疲れているみたい・・・");
+		message_box->Draw(game::MESSAGE_TYPE_COLT_KOMARIGAO, L"%sは\n少し疲れているみたい・・・", monster->name);
 	}
 	else if (monster->fatigue <= 85) {
-		message_box->Draw(game::MESSAGE_TYPE_COLT, 1, L"%sは疲れているみたい・・・");
+		message_box->Draw(game::MESSAGE_TYPE_COLT_KOMARIGAO, L"%sは\n疲れているみたい・・・", monster->name);
 	}
-	else  {
-		message_box->Draw(game::MESSAGE_TYPE_COLT,L"%sはすっごく疲れているみたい・・・\n休ませてあげようよ・・・",monster->name);
-	}*/
+	else {
+		message_box->Draw(game::MESSAGE_TYPE_COLT_KOMARIGAO, L"%sは\nすっごく疲れているみたい・・・\n休ませてあげようよ・・・", monster->name);
+	}
 }
 
 
@@ -1060,7 +1125,7 @@ void field() {
 	koya_tobira_image->changeImage();
 	glBegin(GL_QUADS);//扉
 
-	if (farm_frame * 2 < 450) {
+	if (farm_frame * 2 < 450 && rest_init == false) {
 		farm_movie = farm_frame * 2;
 	}
 	{

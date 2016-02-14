@@ -5,11 +5,13 @@
 #include"../lkn_library/input_manager.h"
 #include"../lkn_library/image.h"
 #include"../game/monster.h"
+#include"../game/player.h"
 #include"almighty.h"
 #include"title.h"
 
 extern game::Monster* monster;
 extern game::Suezo* suezo;
+extern game::Player* player;
 
 
 int title_count = 0;
@@ -29,6 +31,8 @@ void title() {
 		eye->x = 0;
 		eye->z = 1000;
 		frame = 0;
+
+		player->nengetu = 12;
 		
 		
 		monster = suezo;
