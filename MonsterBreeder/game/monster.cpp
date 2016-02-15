@@ -17,7 +17,7 @@ wchar_t parameter_name[6][16] = {
 
 namespace game {
 	void Suezo::Draw() {
-		
+		glColor3f(1, 1, 0);
 		glBegin(GL_QUADS);
 		{
 			glVertex3f(-50.f, -50.f, -150);
@@ -166,6 +166,8 @@ namespace game {
 
 
 	void Monorisu::Draw() {
+
+		glColor3f(0, 0, 0);
 		glBegin(GL_QUADS);
 		{
 			glVertex3f(-150.f, 350.f, -50);

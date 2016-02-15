@@ -17,10 +17,13 @@ void main_manu();
 void training_mode();
 void(*farm_scene)();
 
+void rest_message();
 void training_message();
 void yes_message();
 void battle_message();
 void start_message();
+void hayaku_battle_message();
+void battle_mada_message();
 void(*message)();
 
 void status();
@@ -216,7 +219,7 @@ void farm() {
 	glDisable(GL_TEXTURE_2D);
 
 	glColor3f(1, 1, 1);
-
+	font->ChangeSize(lkn::TYPE_NORMAL);
 	font->DrawStringW(20, 257, L" %d年", nen);
 	font->DrawStringW(16, 229, L" %2d月%d週", getu, syu);
 
@@ -228,6 +231,11 @@ void farm() {
 
 	glDisable(
 		GL_CULL_FACE);
+
+	glColor3f(0, 0, 0);
+	min_font->ChangeSize(lkn::TYPE_MIN);
+	min_font->DrawStringW(100, 285, L"w:↑　s:↓　Enter:決定　Space:Cancel");
+
 
 }
 
@@ -282,6 +290,8 @@ void rest() {
 		angle = 0;
 		monster->pos.x = 0;
 		monster->pos.z = -4500.f;
+		target->x = 0;
+		target->z = -4500.f;
 	}
 	if (rest_frame * 2 <= 450) {
 		farm_movie = 450 - (rest_frame * 2);
@@ -316,7 +326,8 @@ void rest() {
 }
 
 void main_manu() {
-	glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
+
+	glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
 	{
 		glVertex2f(235, 142);
@@ -324,7 +335,7 @@ void main_manu() {
 		glVertex2f(280, 250);
 		glVertex2f(235, 250);
 	}
-	glColor4f(1, 1, 1, 0.7f);
+	glColor4f(1, 1, 1, 0.5f);
 	{
 		glVertex2f(235, 223 - farm_command * 27);
 		glVertex2f(280, 223 - farm_command * 27);
@@ -372,13 +383,19 @@ void main_manu() {
 			message = NULL;
 		}
 	}
+	else if (message == hayaku_battle_message || message == battle_mada_message) {
+		if (lkn::InputManager::getInstance()->keyPless(0x0d)) {////Space Cancel
+			alSourcePlay(decision_music->source);
+			message = NULL;
+		}
+	}
 	else {
 		if (lkn::InputManager::getInstance()->keyPless('w')) {////up select
 			alSourcePlay(select_music->source);
 			if (message == NULL) {
 				farm_command--;
 			}
-			else if (message == battle_message) {
+			else if (message == battle_message || message == rest_message) {
 				farm_yes_no--;
 			}
 		}
@@ -387,7 +404,7 @@ void main_manu() {
 			if (message == NULL) {
 				farm_command++;
 			}
-			else if (message == battle_message) {
+			else if (message == battle_message || message == rest_message) {
 				farm_yes_no++;
 			}
 		}
@@ -397,8 +414,12 @@ void main_manu() {
 
 		if (lkn::InputManager::getInstance()->keyPless(0x0d)) {////Enter Dicision
 			alSourcePlay(decision_music->source);
+			
 			if (farm_command == FARM_BATTLE) {
-				if (message == NULL) {
+				if (player->nengetu < 23) {
+					message = battle_mada_message;
+				}
+				else if (message == NULL) {
 					farm_yes_no = 0;
 					message = battle_message;
 				}
@@ -411,18 +432,39 @@ void main_manu() {
 					}
 				}
 				else if (message == yes_message) {
+					alSourceStop(spring_music->source);
 					farm_init = 0;
 					message = NULL;
 					func = battle;
 				}
 			}
+			else if (farm_command == FARM_PARAMETER) {
+				status_mask = status;
+			}
+			else if(player->nengetu == 23) {
+				message = hayaku_battle_message;
+			}
 			else if (farm_command == FARM_TRAINING) {
+				farm_yes_no = 0;
 				farm_scene = training_mode;
 			}
 			else if (farm_command == FARM_REST) {
-				alSourceStop(spring_music->source);
-				farm_scene = rest;
+				if (message == NULL) {
+					farm_yes_no = 0;
+					message = rest_message;
+				}
+				else if (message == rest_message) {
+					if (farm_yes_no == lkn::YES) {
+						message = NULL;
+						farm_scene = rest;
+						alSourcePause(spring_music->source);
+					}
+					else if (farm_yes_no == lkn::NO) {
+						message = NULL;
+					}
+				}
 			}
+			
 		}
 
 		if (lkn::InputManager::getInstance()->keyPless(0x20)) {////Space Cancel
@@ -430,13 +472,8 @@ void main_manu() {
 			message = NULL;
 		}
 
-
-		if (lkn::InputManager::getInstance()->keyPless('p')) {////up select
-			alSourcePlay(decision_music->source);
-			status_mask = status;
-		}
-
 	}
+	
 }
 
 void start_mask() {
@@ -492,7 +529,7 @@ void start_mask() {
 }
 
 void training_mode() {
-	glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
+	glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
 	{
 		glVertex2f(165, 115);
@@ -508,7 +545,7 @@ void training_mode() {
 		glVertex2f(25, 210);
 	}
 
-	glColor4f(1, 1, 1, 0.7f);
+	glColor4f(1, 1, 1, 0.5f);
 	if (training_command % 2 == 0) {
 		{
 			glVertex2f(165, 223 - (training_command / 2) * 27);
@@ -610,6 +647,7 @@ void training_mode() {
 				farm_yes_no = 0;
 			}
 		}
+		
 		else if (message == yes_message) {
 			farm_init = 0;
 			message = NULL;
@@ -638,7 +676,7 @@ void battle_message() {
 		GL_ONE_MINUS_SRC_ALPHA
 		);
 
-	glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
+	glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
 	{
 		glVertex2f(210, 45);
@@ -653,7 +691,7 @@ void battle_message() {
 		glVertex2f(210, 44);
 	}
 
-	glColor4f(1, 1, 1, 0.7f);
+	glColor4f(1, 1, 1, 0.5f);
 	{
 		glVertex2f(210, 45 - farm_yes_no * 28);
 		glVertex2f(255, 45 - farm_yes_no * 28);
@@ -676,7 +714,7 @@ void training_message() {
 		GL_ONE_MINUS_SRC_ALPHA
 		);
 
-	glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
+	glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
 	{
 		glVertex2f(210, 45);
@@ -691,7 +729,45 @@ void training_message() {
 		glVertex2f(210, 44);
 	}
 
-	glColor4f(1, 1, 1, 0.7f);
+	glColor4f(1, 1, 1, 0.5f);
+	{
+		glVertex2f(210, 45 - farm_yes_no * 28);
+		glVertex2f(255, 45 - farm_yes_no * 28);
+		glVertex2f(255, 72 - farm_yes_no * 28);
+		glVertex2f(210, 72 - farm_yes_no * 28);
+	}
+	glEnd();
+	glDisable(GL_BLEND);
+
+	glColor4f(1, 1, 1, 1);
+	font->DrawStringW(223, 51, L"はい");
+	font->DrawStringW(218, 24, L"いいえ");
+}
+
+void rest_message() {
+	message_box->Draw(game::MESSAGE_TYPE_COLT, L"今週は%sを\n休ませるんだね？",monster->name);
+	glEnable(GL_BLEND);
+	glBlendFunc(
+		GL_SRC_ALPHA,
+		GL_ONE_MINUS_SRC_ALPHA
+		);
+
+	glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(210, 45);
+		glVertex2f(255, 45);
+		glVertex2f(255, 72);
+		glVertex2f(210, 72);
+	}
+	{
+		glVertex2f(210, 17);
+		glVertex2f(255, 17);
+		glVertex2f(255, 44);
+		glVertex2f(210, 44);
+	}
+
+	glColor4f(1, 1, 1, 0.5f);
 	{
 		glVertex2f(210, 45 - farm_yes_no * 28);
 		glVertex2f(255, 45 - farm_yes_no * 28);
@@ -708,6 +784,14 @@ void training_message() {
 
 void yes_message() {
 	message_box->Draw(game::MESSAGE_TYPE_COLT, L"それじゃあ頑張ろうね！");
+}
+
+void hayaku_battle_message() {
+	message_box->Draw(game::MESSAGE_TYPE_COLT_KOMARIGAO, L"今週は大事な大会だよ...？");
+}
+
+void battle_mada_message() {
+	message_box->Draw(game::MESSAGE_TYPE_COLT_KOMARIGAO, L"大会は6月4週だよ...？");
 }
 
 void start_message() {

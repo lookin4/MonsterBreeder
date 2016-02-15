@@ -14,11 +14,11 @@ void parameter_up();
 void(*result)();
 
 
-void light_parameter_up(int type, unsigned short& para);
-void (*l_para)(int type, unsigned short& para);
+void light_parameter_up(int type, short& para);
+void (*l_para)(int type, short& para);
 
-void heavy_parameter_up(int type1, int type2, int type3, unsigned short &para1, unsigned short &para2, unsigned short &para3);
-void(*h_para)(int type1, int type2, int type3, unsigned short &para1,unsigned short &para2, unsigned short &para3);
+void heavy_parameter_up(int type1, int type2, int type3, short &para1, short &para2, short &para3);
+void(*h_para)(int type1, int type2, int type3, short &para1,short &para2, short &para3);
 
 extern game::MyMessageBox* message_box;
 extern lkn::Image* status_mask_image;
@@ -175,6 +175,10 @@ void training() {
 			func = farm;
 		}
 	}
+
+	glColor3f(1, 1, 1);
+	min_font->ChangeSize(lkn::TYPE_MIN);
+	min_font->DrawStringW(10, 285, L"　　　　　　Enter:Skip");
 }
 
 void success() {
@@ -202,7 +206,7 @@ void success() {
 
 }
 
-void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, unsigned short& para2, unsigned short& para3) {
+void heavy_parameter_up(int type1, int type2, int type3, short& para1, short& para2, short& para3) {
 	if (up_init == 0) {
 		up_init = 1;
 
@@ -417,7 +421,7 @@ void heavy_parameter_up(int type1, int type2, int type3, unsigned short& para1, 
 	glDisable(GL_BLEND);
 }
 
-void light_parameter_up(int type, unsigned short& para) {
+void light_parameter_up(int type, short& para) {
 	
 	if (up_init == 0) {
 		up_init = 1;

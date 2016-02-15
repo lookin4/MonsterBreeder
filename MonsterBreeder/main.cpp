@@ -29,8 +29,13 @@ lkn::Sound* spring_music;
 
 lkn::Sound* battle_music;
 lkn::Sound* battle_lose_music;
+lkn::Sound* battle_win_music;
+
+lkn::Sound* init_music;
 
 lkn::Sound* training_music;
+
+lkn::Sound* ending_music;
 
 lkn::Sound* rest_music;
 
@@ -61,6 +66,19 @@ lkn::Image* suezo_eye_image;
 
 lkn::Image* status_mask_image;
 
+lkn::Image* sippo_image;
+lkn::Image* tuba_image;
+lkn::Image* taore_image;
+lkn::Image* biimu_image;
+lkn::Image* wazanasi_image;
+
+lkn::Image* tuba_waza_image;
+
+lkn::Image* biimu_waza1_image;
+lkn::Image* biimu_waza2_image;
+
+lkn::Image* init_image;
+
 
 
 lkn::Vec3* eye;
@@ -70,6 +88,7 @@ game::Suezo* suezo;
 game::Monorisu* monorisu;
 
 game::Monster* monster;
+game::Monster* enemy;
 
 game::MyMessageBox* message_box;
 
@@ -89,6 +108,8 @@ void keyboardUp(unsigned char key, int _x, int _y);
 void title();
 void farm();
 void battle();
+void opening();
+void ending();
 
 void(*func)(void);
 //----------------------------------------------------
@@ -149,8 +170,13 @@ void init(void) {
 
 	battle_music = new lkn::Sound("sound/battle_music3.wav");
 	battle_lose_music = new lkn::Sound("sound/battle_lose.wav");
+	battle_win_music = new lkn::Sound("sound/battle_won.wav");
 
 	training_music = new lkn::Sound("sound/training_music.wav");
+
+	ending_music = new lkn::Sound("sound/ending_music.wav");
+
+	init_music = new lkn::Sound("sound/init_music.wav");
 
 	title_image = new lkn::Image("image/title2.bmp", lkn::IMAGE_TYPE_RGBA_W);
 	title_background_image = new lkn::Image("image/title_background.bmp", lkn::IMAGE_TYPE_RGB);
@@ -168,7 +194,7 @@ void init(void) {
 	battle_background_image = new lkn::Image("image/battle_background.bmp", lkn::IMAGE_TYPE_RGB);
 	battle_selectbar_image = new lkn::Image("image/battle_selectbar.bmp", lkn::IMAGE_TYPE_RGBA_W);
 
-	koruto_image = new lkn::Image("image/END.bmp", lkn::IMAGE_TYPE_RGBA_W);
+	koruto_image = new lkn::Image("image/koruto.bmp", lkn::IMAGE_TYPE_RGBA_W);
 	koruto_komarigao_image = new lkn::Image("image/koruto_komarigao.bmp", lkn::IMAGE_TYPE_RGBA_W);
 
 	message_box_image = new lkn::Image("image/message_box.bmp", lkn::IMAGE_TYPE_RGBA_B);
@@ -178,6 +204,17 @@ void init(void) {
 	suezo_eye_image = new lkn::Image("image/suezo_me.bmp", lkn::IMAGE_TYPE_RGB);
 
 	status_mask_image = new lkn::Image("image/monster_data.bmp", lkn::IMAGE_TYPE_RGB);
+
+	sippo_image = new lkn::Image("image/sippo.bmp", lkn::IMAGE_TYPE_RGB);
+	tuba_image = new lkn::Image("image/tuba.bmp", lkn::IMAGE_TYPE_RGB);
+	biimu_image = new lkn::Image("image/biimu.bmp", lkn::IMAGE_TYPE_RGB);
+	taore_image = new lkn::Image("image/taore.bmp", lkn::IMAGE_TYPE_RGB);
+	wazanasi_image = new lkn::Image("image/wazanasi.bmp", lkn::IMAGE_TYPE_RGB);
+
+	tuba_waza_image = new lkn::Image("image/tuba_waza.bmp", lkn::IMAGE_TYPE_RGBA_W);
+	biimu_waza1_image = new lkn::Image("image/biimu_waza1.bmp", lkn::IMAGE_TYPE_RGBA_B);
+	biimu_waza2_image = new lkn::Image("image/biimu_waza2.bmp", lkn::IMAGE_TYPE_RGBA_B);
+	init_image = new lkn::Image("image/init.bmp", lkn::IMAGE_TYPE_RGB);
 
 	font = new lkn::GLFONT(L"‚l‚r–¾’©", 50, lkn::TYPE_NORMAL);
 	min_font = new lkn::GLFONT(L"‚l‚r–¾’©", 35, lkn::TYPE_MIN);
@@ -234,4 +271,3 @@ void keyboardUp(unsigned char _key, int x, int y) {
 
 	lkn::InputManager::getInstance()->keys[_key] = lkn::KEY_RELEASE;
 }
-
