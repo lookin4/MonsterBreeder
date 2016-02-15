@@ -5,6 +5,7 @@
 
 extern lkn::Sound* battle_music;
 extern lkn::Sound* battle_lose_music;
+extern lkn::Sound* battle_win_music;
 
 extern lkn::Image* battle_gauge_image;
 extern lkn::Image* battle_background_image;
